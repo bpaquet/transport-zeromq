@@ -2,6 +2,8 @@ package org.elasticsearch.zeromq;
 
 import org.elasticsearch.common.Bytes;
 import org.elasticsearch.common.Unicode;
+import org.elasticsearch.common.bytes.ByteBufferBytesReference;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.rest.support.AbstractRestRequest;
 import org.elasticsearch.rest.support.RestUtils;
 import org.elasticsearch.zeromq.exception.NoURIFoundZMQException;
@@ -30,6 +32,8 @@ public class ZMQRestRequest extends AbstractRestRequest {
 	private final Map<String, String> params;
 
 	public ByteBuffer body;
+	
+	public BytesReference bytesReference;
 
 	public ZMQRestRequest(String payload, List<byte[]> parts) {
 		super();
@@ -86,6 +90,7 @@ public class ZMQRestRequest extends AbstractRestRequest {
 			// Content
 			int indexContent = payload.indexOf(ZMQSocket.SEPARATOR, m.length() + uri.length());
 			body = ByteBuffer.wrap(payload.substring(indexContent+1).getBytes());
+			bytesReference = new ByteBufferBytesReference(body);
 		}
 	}
 
@@ -112,39 +117,6 @@ public class ZMQRestRequest extends AbstractRestRequest {
 	@Override
 	public boolean contentUnsafe() {
 		return false;
-	}
-
-	@Override
-	public byte[] contentByteArray() {
-		if (body == null) {
-			return Bytes.EMPTY_ARRAY;
-		}
-		return body.array();
-	}
-
-	@Override
-	public int contentByteArrayOffset() {
-		if (body == null) {
-			return 0;
-		}
-		return body.arrayOffset() + body.position();
-	}
-
-	@Override
-	public int contentLength() {
-		if (body == null) {
-			return 0;
-		}
-		return body.remaining();
-	}
-
-	@Override
-	public String contentAsString() {
-		if (body == null) {
-			return "";
-		}
-		return Unicode.fromBytes(contentByteArray(), contentByteArrayOffset(),
-				contentLength());
 	}
 
 	@Override
@@ -176,6 +148,11 @@ public class ZMQRestRequest extends AbstractRestRequest {
 			return defaultValue;
 		}
 		return value;
+	}
+
+	@Override
+	public BytesReference content() {
+		return bytesReference;
 	}
 
 }

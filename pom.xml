@@ -10,7 +10,7 @@
 	<url>https://github.com/tlrx/transport-zeromq</url>
 	
 	<properties>
-		<elasticsearch.version>0.19.2</elasticsearch.version>
+		<elasticsearch.version>0.19.9</elasticsearch.version>
 	</properties>
 
 	<scm>
