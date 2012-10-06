@@ -5,12 +5,12 @@
 	<groupId>org.elasticsearch.plugin</groupId>
 	<artifactId>transport-zeromq</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.4-SNAPSHOT</version>
+	<version>0.0.4.1-SNAPSHOT</version>
 	<name>ØMQ transport layer plugin for Elasticsearch</name>
 	<url>https://github.com/tlrx/transport-zeromq</url>
 	
 	<properties>
-		<elasticsearch.version>0.19.9</elasticsearch.version>
+		<elasticsearch.version>0.19.10</elasticsearch.version>
 	</properties>
 
 	<scm>

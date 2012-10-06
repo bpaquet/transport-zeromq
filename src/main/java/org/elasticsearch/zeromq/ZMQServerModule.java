@@ -21,23 +21,20 @@ package org.elasticsearch.zeromq;
 
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.zeromq.impl.ZMQQueueServerImpl;
+import org.elasticsearch.zeromq.impl.ZMQPullServerImpl;
 
 /**
  * @author tlrx
  */
 public class ZMQServerModule extends AbstractModule {
 
-    private final Settings settings;
-
     public ZMQServerModule(Settings settings) {
-        this.settings = settings;
     }
  
     @Override 
     protected void configure() {
         bind(ZMQRestImpl.class).asEagerSingleton();
-        bind(ZMQServerTransport.class).to(ZMQQueueServerImpl.class).asEagerSingleton();
+        bind(ZMQServerTransport.class).to(ZMQPullServerImpl.class).asEagerSingleton();
         bind(ZMQServer.class).asEagerSingleton();
     }
 }

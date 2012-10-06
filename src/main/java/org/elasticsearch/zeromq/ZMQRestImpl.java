@@ -20,9 +20,7 @@
 package org.elasticsearch.zeromq;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
@@ -45,51 +43,33 @@ public class ZMQRestImpl extends AbstractComponent {
 		this.restController = restController;
 	}
 
-	public ZMQRestResponse process(ZMQRestRequest request){
-		
+	public void process(ZMQRestRequest request) {
+
 		final CountDownLatch latch = new CountDownLatch(1);
-        final AtomicReference<ZMQRestResponse> ref = new AtomicReference<ZMQRestResponse>();
-        
+
 		this.restController.dispatchRequest(request, new RestChannel() {
-			
+
 			@Override
 			public void sendResponse(RestResponse response) {
 				try {
-					if(logger.isTraceEnabled()){
-						logger.info("Response to ØMQ client: {}", new String(response.content()));	
+					if (logger.isTraceEnabled()) {
+						logger.info("Response: {}, {}", response.status(), new String(response.content()));
 					}
-					ref.set(convert(response));
+					if (response.status().getStatus() >= 300) {
+						logger.warn("Wrong retrun code when sending rest request : {}, {}", response.status(), new String(response.content()));
+					}
 				} catch (IOException e) {
 					// ignore
 				}
 				latch.countDown();
 			}
 		});
-		
-		try {
-            latch.await();
-            return ref.get();
-        } catch (Exception e) {
-            throw new ZMQException("failed to generate response", 0);
-        }
-	}
-	
-	private ZMQRestResponse convert(RestResponse response) throws IOException {
-		ZMQRestResponse zmqResponse = new ZMQRestResponse(response.status());
 
-		if(response.contentType() != null){
-			zmqResponse.setContentType(response.contentType());
+		try {
+			latch.await();
+		} catch (Exception e) {
+			throw new ZMQException("failed to generate response", 0);
 		}
-        if (response.contentLength() > 0) {
-            if (response.contentThreadSafe()) {
-            	zmqResponse.setBody(ByteBuffer.wrap(response.content(), 0, response.contentLength()));
-            } else {
-                // argh!, we need to copy it over since we are not on the same thread...
-                byte[] body = new byte[response.contentLength()];
-                System.arraycopy(response.content(), 0, body, 0, response.contentLength());
-                zmqResponse.setBody(ByteBuffer.wrap(body));
-            }
-        }
-        return zmqResponse;
-    }
+	}
+
 }

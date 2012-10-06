@@ -1,8 +1,9 @@
 package org.elasticsearch.zeromq;
 
-import org.elasticsearch.common.Bytes;
-import org.elasticsearch.common.Unicode;
-import org.elasticsearch.common.bytes.ByteBufferBytesReference;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.rest.support.AbstractRestRequest;
 import org.elasticsearch.rest.support.RestUtils;
@@ -10,18 +11,11 @@ import org.elasticsearch.zeromq.exception.NoURIFoundZMQException;
 import org.elasticsearch.zeromq.exception.UnsupportedMethodZMQException;
 import org.elasticsearch.zeromq.exception.ZMQTransportException;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author tlrx
  * 
  */
 public class ZMQRestRequest extends AbstractRestRequest {
-
-	private final List<byte[]> parts;
 
 	private Method method;
 
@@ -30,14 +24,11 @@ public class ZMQRestRequest extends AbstractRestRequest {
 	private String rawPath;
 
 	private final Map<String, String> params;
-
-	public ByteBuffer body;
 	
-	public BytesReference bytesReference;
+	public BytesArray body;
 
-	public ZMQRestRequest(String payload, List<byte[]> parts) {
+	public ZMQRestRequest(String payload) {
 		super();
-		this.parts = parts;
 		this.params = new HashMap<String, String>();
 
 		parse(payload);
@@ -89,8 +80,7 @@ public class ZMQRestRequest extends AbstractRestRequest {
 
 			// Content
 			int indexContent = payload.indexOf(ZMQSocket.SEPARATOR, m.length() + uri.length());
-			body = ByteBuffer.wrap(payload.substring(indexContent+1).getBytes());
-			bytesReference = new ByteBufferBytesReference(body);
+			body = new BytesArray(payload.substring(indexContent+1).getBytes());
 		}
 	}
 
@@ -111,7 +101,7 @@ public class ZMQRestRequest extends AbstractRestRequest {
 
 	@Override
 	public boolean hasContent() {
-		return ((body != null) && (body.remaining() > 0));
+		return ((body != null) && (body.length() > 0));
 	}
 
 	@Override
@@ -152,7 +142,7 @@ public class ZMQRestRequest extends AbstractRestRequest {
 
 	@Override
 	public BytesReference content() {
-		return bytesReference;
+		return body;
 	}
 
 }
