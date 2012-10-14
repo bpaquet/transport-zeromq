@@ -1,6 +1,6 @@
 h1. ØMQ transport layer plugin for Elasticsearch
 
-This plugin is a fork from https://github.com/tlrx/transport-zeromq. It expose the index REST interface through a ZeroMQ pull socket, without sending response. It's designed for mass indexing into ElasticSearch, for example with "node-logstash":https://github.com/bpaquet/node-logstash.
+This plugin is a fork from https://github.com/tlrx/transport-zeromq. It expose the index REST interface through a ZeroMQ push pull socket, without sending response. It's designed for mass indexing into ElasticSearch, for example with "node-logstash":https://github.com/bpaquet/node-logstash.
 
 h2. Versions
 
