@@ -1,19 +1,18 @@
 h1. ØMQ transport layer plugin for Elasticsearch
 
-This plugin exposes the REST interfaces of "Elasticsearch":http://www.elasticsearch.org over "ZeroMQ":http://www.zeromq.org/ messaging library.
+This plugin is a fork from https://github.com/tlrx/transport-zeromq. It expose the index REST interface through a ZeroMQ pull socket, without sending response. It's designed for mass indexing into ElasticSearch, for example with "node-logstash":https://github.com/bpaquet/node-logstash.
 
 h2. Versions
 
 |_. ØMQ Transport Plugin|_. ElasticSearch	|_. ØMQ	|
-|  master (0.0.3)   	|  master (0.19.2)	| 2.2	|
-|     0.0.2         	|     0.18.2		| 2.1	|
+|  master (0.0.4.1-SNAPSHOT)   	|  master (0.19.10)	| 2.2	|
 
 
 h2. Installation
 
 h3. Requirements
 
-Before installing and using this plugin with Elasticsearch (0.19.2), you need to install ZeroMQ Java Binding library (2.2) on your system. This binding uses native library to work. 
+Before installing and using this plugin with Elasticsearch (0.19.10), you need to install ZeroMQ Java Binding library (2.2) on your system. This binding uses native library to work. 
 
 The "ZeroMQ":http://www.zeromq.org/ website is a great place to start installing the libraries, specially the "Java binding page":http://www.zeromq.org/bindings:java
 
@@ -24,14 +23,14 @@ h3. Installation
 Type the command in your favorite shell :
 
 <pre>
-$ bin\plugin -install tlrx/transport-zeromq/0.0.3
+$ bin\plugin -install bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT
 </pre>
 
 Elasticsearch automatically install the plugin:
 
 <pre>
--> Installing tlrx/transport-zeromq/0.0.3...
-Trying https://github.com/downloads/tlrx/transport-zeromq/transport-zeromq-0.0.3.zip...
+-> Installing bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT...
+Trying https://github.com/downloads/bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT.zip...
 Downloading ..........DONE
 Installed transport-zeromq
 </pre>
@@ -42,9 +41,7 @@ Finally, edit Elasticsearch configuration file @config/elasticsearch.yml@ and ad
 
 <pre>
 # ZeroMQ Transport config
-zeromq.router.bind: tcp://*:9700
-zeromq.workers.threads: 2
-zeromq.workers.bind: inproc://es_zeromq_workers
+zeromq.bind: tcp://0.0.0.0:9700
 </pre>
 
 Restart Elasticsearch.
@@ -61,66 +58,17 @@ You can also read the documentation of the "ØMQ Java binding":http://www.zeromq
 
 h2. Behind the scene
 
-The plugin exposes the REST interfaces of Elasticsearch over ØMQ sockets. The implementation uses a "router-dealer pattern":http://www.zeromq.org/sandbox:dealer, where multiple ROUTER sockets (2 by default, see @zeromq.workers.threads@) are listening to incoming messages (each in a dedicated thread) send by DEALER sockets on the @zeromq.router.bind@ address. This way, it is possible to send REST-like messages with ØMQ clients and get the replies back. 
+The plugin exposes the REST interfaces of Elasticsearch over ØMQ sockets. The implementation uses a push pull pattern, ElasticSearch is the pull socket.
 
 For example, a ØMQ client can send the following message:
 <pre>POST|/twitter/tweet/2|{"user" : "kimchy", "post_date" : "2009-11-15T14:12:12", "message" : "You know, for Search"}</pre>
 
-It will receive the following response back: 
-<pre>201|CREATED|{"ok" : true, "_index" : "twitter", "_type" : "tweet", "_id" : "2", "_version" : 1}</pre>
+It will receive no response.
 
 The transport layer converts ØMQ messages in a given format into REST request objects that can be handled by ES. 
 
 The expected format for incoming messages is: 
 <pre><code> <Method PUT,DELETE, POST...>|<URI, including parameters>|<JSON content> </code></pre>
 
-The format for outcoming message is:
-<pre><code> <Status code>|<Status name>|<JSON reply content> </code></pre>
-
 But any other message format can be easely implemented if needed.
-
-
-
-h3. Simple ØMQ client to test the plugin
-
-The @SimpleClient@ Java class in test package shows how to create a simple ØMQ client and send messages. In your test, take care to add the native library to classpath (@-Djava.library.path=/usr/local/lib@).
-
-h4. Add new document
-
-Message:
-<pre>java org.elasticsearch.zeromq.test.SimpleClient tcp://localhost:9700 PUT /twitter/tweet/2 "{\"user\": \"kimchy\",\"post_date\": \"2009-11-15T14:12:12\",\"message\": \"You know, for Search\"}"</pre>
-
-Reply:
-<pre>201|CREATED|{"ok" : true, "_index" : "twitter", "_type" : "tweet", "_id" : "2", "_version" : 1}</pre>
-
-
-h4. Search for document
-
-Message:
-<pre>java org.elasticsearch.zeromq.test.SimpleClient tcp://localhost:9700 GET /twitter/tweet/_search?q=user:kimchy</pre>
-
-Reply:
-<pre>200|OK|{"took" : 29, "timed_out" : false, "_shards" : {"total" : 5, "successful" : 5, "failed" : 0}, "hits" : {"total" : 1, "max_score" : 0.30685282, "hits" : [{"_index" : "twitter", "_type" : "tweet", "_id" : "2", "_score" : 0.30685282, "_source" : {
-    "user" : "kimchy",
-    "post_date" : "2009-11-15T14:12:12",
-    "message" : "You know, for Search"
-}}]}}
-</pre>
-
-
-h4. Delete a document
-
-Message:
-<pre>java org.elasticsearch.zeromq.test.SimpleClient tcp://localhost:9700 DELETE /twitter/tweet/2</pre>
-
-Reply:
-<pre>200|OK|{"ok" : true, "found" : true, "_index" : "twitter", "_type" : "tweet", "_id" : "2", "_version" : 2}</pre>
-
-
-h3. Other examples
-
-The @ZMQTransportPluginTest@ Java class in test package has other examples.
-
-
-Thanks to "David Pilato":https://github.com/dadoonet for the Maven pom and README files.
 
