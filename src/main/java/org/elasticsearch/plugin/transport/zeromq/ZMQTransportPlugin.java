@@ -46,7 +46,7 @@ public class ZMQTransportPlugin extends AbstractPlugin {
     }
 
     @Override public String description() {
-        return "Exports elasticsearch REST APIs over ØMQ";
+        return "Exports elasticsearch REST APIs over ZeroMQ";
     }
 
     @Override public Collection<Class<? extends Module>> modules() {

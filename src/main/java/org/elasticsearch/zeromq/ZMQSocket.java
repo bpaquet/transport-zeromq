@@ -1,7 +1,5 @@
 package org.elasticsearch.zeromq;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.elasticsearch.common.logging.ESLogger;
@@ -47,6 +45,8 @@ public class ZMQSocket implements Runnable {
 
 			} catch (ZMQException zmqe) {
 				if (!isRunning.get()) {
+					socket.close();
+			        logger.info("ZeroMQ socket closed");
 					return;
 				}
 				// Close the socket

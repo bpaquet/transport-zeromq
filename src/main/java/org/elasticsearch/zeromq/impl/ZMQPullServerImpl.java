@@ -35,13 +35,14 @@ ZMQServerTransport {
 
 		address = settings.get("zeromq.bind", "tcp://127.0.0.1:9700");
 		
-		logger.debug(
-				"ZeroMQ settings [zeromq.bind={}]", address);
+		logger.debug("ZeroMQ settings [zeromq.bind={}]", address);
 
 		logger.info("Creating ZeroMQ server context...");
 		context = ZMQ.context(1);
 		
 		isRunning = new AtomicBoolean(true);
+		
+		logger.info("ZeroMQ context ready");
 	}
 	
 	@Override
@@ -51,15 +52,13 @@ ZMQServerTransport {
 		isRunning.set(false);
 
         // Stops the worker
-        worker.interrupt();
-        logger.info("ZeroMQ worker thread interrupted");
-
-        // Stop the socket, no accept message anymore
-        socket.close();
-        logger.info("ZeroMQ socket closed");
-
+		logger.info("Interrupt ZeroMQ worker thread listening on {}", address);
+		worker.interrupt();
+        
+        // Stop the zmq context
+        // All socket must be stop from another thread
 		context.term();
-		logger.info("ZeroMQ server closed");
+		logger.info("ZeroMQ context closed");
 	}
 
 	@Override
@@ -73,7 +72,7 @@ ZMQServerTransport {
         
         worker.start();
         
-        logger.info("ZeroMQ server started");
+        logger.info("ZeroMQ socket ready on {}", address);
 	}
 
 	@Override
