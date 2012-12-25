@@ -24,14 +24,14 @@ h3. Installation
 Type the command in your favorite shell :
 
 <pre>
-$ bin\plugin -install bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT
+$ bin\plugin -install bpaquet/transport-zeromq/0.0.5
 </pre>
 
 Elasticsearch automatically install the plugin:
 
 <pre>
--> Installing bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT...
-Trying https://github.com/downloads/bpaquet/transport-zeromq/0.0.4.1-SNAPSHOT.zip...
+-> Installing bpaquet/transport-zeromq/0.0.5...
+Trying https://github.com/downloads/bpaquet/transport-zeromq/0.0.5.zip...
 Downloading ..........DONE
 Installed transport-zeromq
 </pre>
