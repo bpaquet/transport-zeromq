@@ -67,9 +67,3 @@ For example, a ØMQ client can send the following message:
 It will receive no response.
 
 The transport layer converts ØMQ messages in a given format into REST request objects that can be handled by ES. 
-
-The expected format for incoming messages is: 
-<pre><code> <Method PUT,DELETE, POST...>|<URI, including parameters>|<JSON content> </code></pre>
-
-But any other message format can be easely implemented if needed.
-
