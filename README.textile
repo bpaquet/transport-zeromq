@@ -5,6 +5,7 @@ This plugin is a fork from https://github.com/tlrx/transport-zeromq. It expose t
 h2. Versions
 
 |_. ØMQ Transport Plugin|_. ElasticSearch	|_. ØMQ	|
+|  master (0.0.5)     |  master (0.20.1)	| 2.2	|
 |  master (0.0.4.1-SNAPSHOT)   	|  master (0.19.10)	| 2.2	|
 
 
