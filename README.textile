@@ -24,15 +24,15 @@ h3. Installation
 Type the command in your favorite shell :
 
 <pre>
-$ bin\plugin -install bpaquet/transport-zeromq/0.0.5
+$ bin/plugin -url http://warp-repo.s3-eu-west-1.amazonaws.com/transport-zeromq-0.0.5.zip -install transport-zeromq
 </pre>
 
 Elasticsearch automatically install the plugin:
 
 <pre>
--> Installing bpaquet/transport-zeromq/0.0.5...
-Trying https://github.com/downloads/bpaquet/transport-zeromq/0.0.5.zip...
-Downloading ..........DONE
+-> Installing transport-zeromq...
+Trying http://warp-repo.s3-eu-west-1.amazonaws.com/transport-zeromq-0.0.5.zip...
+Downloading ............................................DONE
 Installed transport-zeromq
 </pre>
 
